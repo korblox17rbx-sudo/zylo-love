@@ -1,0 +1,16 @@
+# Lua / LÖVE
+*.lua~
+*.luac
+*.love
+
+# Сборка / кеш
+/build/
+/dist/
+/tmp/
+*.o
+*.so
+
+# Секреты и локальные данные
+.env
+secret_key
+zylo.dat

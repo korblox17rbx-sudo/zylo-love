@@ -1,0 +1,13 @@
+#!/usr/bin/env lua
+-- Запрет на коммиты с .env и другими секретами
+local function exec(cmd) return io.popen(cmd):read("*a") end
+
+local forbidden = {"\\.env", "secret_key"}
+for _, p in ipairs(forbidden) do
+    local out = exec('git diff --cached --name-only | grep -E "'..p..'"')
+    if out ~= "" then
+        io.stderr:write("[pre-commit] Ошибка: найден запрещённый файл → ", out)
+        os.exit(1)
+    end
+end
+os.exit(0)

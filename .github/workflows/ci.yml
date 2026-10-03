@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua & Luarocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4 luarocks
+
+      - name: Install dependencies
+        run: |
+          sudo luarocks install luacheck
+          sudo luarocks install busted
+
+      - name: Lint Lua code
+        run: luacheck src test
+
+      - name: Run unit tests
+        run: busted test/
+
+  package:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build zylo.love
+        run: cd src && zip -9 -r ../zylo.love . -x '*.lua~'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zylo-love
+          path: zylo.love
