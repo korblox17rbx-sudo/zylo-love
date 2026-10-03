@@ -16,8 +16,8 @@
 
 ## Запуск
 ```bash
-git clone https://github.com/yourname/zylo.git
-cd zylo
+git clone https://github.com/korblox17rbx-sudo/zylo-love.git
+cd zylo-love
 love src
 ```
 Или скачай `zylo.love` из артефактов GitHub Actions (job `package`) и открой его в LÖVE.

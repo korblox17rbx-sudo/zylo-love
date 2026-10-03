@@ -1,7 +1,7 @@
 package = "zylo"
 version = "0.1.0-1"
 source = {
-    url = "git+https://github.com/yourname/zylo.git"
+    url = "git+https://github.com/korblox17rbx-sudo/zylo-love.git"
 }
 description = {
     summary = "ZYLO – мессенджер на LÖVE",
