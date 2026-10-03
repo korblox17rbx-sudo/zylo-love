@@ -1,6 +1,6 @@
 function love.conf(t)
     t.identity = "zylo"
-    t.version  = "11.4"
+    t.version  = "11.5"
     t.window.title     = "ZYLO"
     t.window.icon      = "assets/icon.png"
     t.window.width     = 420

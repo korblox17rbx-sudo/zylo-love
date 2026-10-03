@@ -1,6 +1,6 @@
 # 𝒵𝒴𝐿𝒪 – мессенджер на LÖVE
 
-Локальный мессенджер на Lua + [LÖVE 11.4](https://love2d.org). Данные хранятся на устройстве (`zylo.dat` в папке сохранений LÖVE).
+Локальный мессенджер на Lua + [LÖVE 11.5](https://love2d.org). Данные хранятся на устройстве (`zylo.dat` в папке сохранений LÖVE).
 
 ## Что работает
 * Заставка с логотипом → вход / регистрация (пароли: соль + 20 000 итераций SHA-256). Первый созданный аккаунт — администратор.
@@ -16,8 +16,8 @@
 
 ## Запуск
 ```bash
-git clone https://github.com/korblox17rbx-sudo/zylo-love.git
-cd zylo-love
+git clone https://github.com/yourname/zylo.git
+cd zylo
 love src
 ```
 Или скачай `zylo.love` из артефактов GitHub Actions (job `package`) и открой его в LÖVE.
@@ -36,3 +36,6 @@ chmod +x .git/hooks/pre-commit
 ```
 
 Шрифт DejaVu Sans (`src/assets/fonts`) распространяется по своей свободной лицензии, см. `DejaVu-LICENSE.txt`.
+
+## APK для Android
+APK собирается автоматически (workflow **Android APK**, ~10–15 минут) на базе [love-android](https://github.com/love2d/love-android) и публикуется в **Releases → ZYLO APK → zylo.apk**. Подпись debug, для установки разреши установку из неизвестных источников.

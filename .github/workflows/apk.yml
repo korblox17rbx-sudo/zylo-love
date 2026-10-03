@@ -1,0 +1,76 @@
+name: Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build zylo.love
+        run: cd src && zip -9 -r ../zylo.love . -x '*.lua~'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Get love-android
+        run: |
+          git clone --recurse-submodules --depth 1 --shallow-submodules --branch 11.5 https://github.com/love2d/love-android.git \
+          || { echo "tag 11.5 not found, using default branch"; rm -rf love-android; git clone --recurse-submodules --depth 1 --shallow-submodules https://github.com/love2d/love-android.git; }
+
+      - name: Embed game, app name and icon
+        run: |
+          set -e
+          cd love-android
+          mkdir -p app/src/embed/assets
+          cp ../zylo.love app/src/embed/assets/game.love
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p app/src/main/res/mipmap-$d
+            cp ../icons/android/mipmap-$d/ic_launcher.png app/src/main/res/mipmap-$d/ic_launcher.png
+            cp ../icons/android/mipmap-$d/ic_launcher_round.png app/src/main/res/mipmap-$d/ic_launcher_round.png
+          done
+          find app/src -path '*mipmap-anydpi*' -name 'ic_launcher*.xml' -delete
+          find app/src -name AndroidManifest.xml -exec sed -i -E 's#android:icon="[^"]*"#android:icon="@mipmap/ic_launcher"#; s#android:roundIcon="[^"]*"#android:roundIcon="@mipmap/ic_launcher_round"#' {} +
+          find app/src -name strings.xml -exec sed -i -E 's#(<string name="app_name"[^>]*>)[^<]*#\1ZYLO#' {} +
+          sed -i -E '/applicationId/ s/org\.love2d\.android/com.zylo.app/' app/build.gradle
+          grep -n "applicationId\|namespace" app/build.gradle || true
+          grep -rn "android:icon\|android:roundIcon" app/src --include=AndroidManifest.xml || true
+
+      - name: Accept Android licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+
+      - name: Build APK
+        working-directory: love-android
+        run: ./gradlew assembleEmbedNoRecordDebug --stacktrace
+
+      - name: Find APK
+        run: |
+          APK=$(find love-android/app/build/outputs/apk -name '*.apk' | head -n 1)
+          echo "APK=$APK"
+          cp "$APK" zylo.apk
+          ls -la zylo.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zylo-apk
+          path: zylo.apk
+
+      - name: Publish release with zylo.apk
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest zylo.apk \
+            --title "ZYLO APK" \
+            --notes "Debug-подписанный APK, собран из коммита ${{ github.sha }}" \
+            --target "${{ github.sha }}"
